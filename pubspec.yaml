@@ -13,3 +13,4 @@ dependencies:
   crypto: ^3.0.7
   dart_jsonwebtoken: ^3.3.1
   http: ^1.6.0
+  pool: ^1.5.2

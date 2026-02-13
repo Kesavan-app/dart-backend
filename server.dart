@@ -9,7 +9,8 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:pool/pool.dart';
 
 
-final jwtSecret = Platform.environment['JWT_SECRET']!;
+final jwtSecret = Platform.environment['JWT_SECRET'] ?? 'dev-secret';
+
 
 /// ---------------- MYSQL POOL (CRITICAL FIX) ----------------
 final pool = Pool(6);
