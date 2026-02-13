@@ -4,8 +4,6 @@ import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
-import 'package:shelf_router/shelf_router.dart';
-
 import 'package:mysql1/mysql1.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -137,6 +135,27 @@ Future<int?> verifyAdminToken(Request req) async {
       .addHandler((Request req) async {
     final path = req.url.path;
     final method = req.method;
+
+    // ================= ROOT / HEALTH CHECK =================
+if (path.isEmpty && method == 'GET') {
+  return Response.ok(
+    jsonEncode({
+      "ok": true,
+      "message": "Backend is running 🚀"
+    }),
+    headers: {"Content-Type": "application/json"},
+  );
+}
+
+if (path == 'health' && method == 'GET') {
+  return Response.ok(
+    jsonEncode({
+      "status": "ok",
+      "service": "backend running",
+    }),
+    headers: {"Content-Type": "application/json"},
+  );
+}
 
 /// ================= REGISTER =================
 if (path == 'api/auth/register' && method == 'POST') {
