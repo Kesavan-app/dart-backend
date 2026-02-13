@@ -478,7 +478,7 @@ if (path == 'api/admin/users' && method == 'GET') {
   }
 }
 // ---------------- ADMIN SIGNUP ----------------
-if (path == 'admin/register' && method == 'POST') {
+if (path == 'api/admin/register' && method == 'POST') {
   try {
     final body = jsonDecode(await req.readAsString());
     final username = body['username'];
