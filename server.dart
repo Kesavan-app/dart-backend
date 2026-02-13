@@ -479,52 +479,58 @@ if (path == 'api/admin/users' && method == 'GET') {
 }
 // ---------------- ADMIN SIGNUP ----------------
 if (path == 'admin/register' && method == 'POST') {
-  final body = jsonDecode(await req.readAsString());
-  final username = body['username'];
-  final password = body['password'];
-   final adminType = body['admin_type']; 
+  try {
+    final body = jsonDecode(await req.readAsString());
+    final username = body['username'];
+    final password = body['password'];
+    final adminType = body['admin_type'];
 
-  if (username == null || password == null || adminType == null) {
-  return Response(400,
-    body: jsonEncode({"message": "Missing credentials"}),
-    headers: {"Content-Type": "application/json"},
-  );
-}
-
-if (adminType != 'HR' && adminType != 'RECRUITING_MANAGER') {
-  return Response(400,
-    body: jsonEncode({"message": "Invalid admin type"}),
-    headers: {"Content-Type": "application/json"},
-  );
-}
-  return await withPoolConn((conn) async {
-    // check existing
-    final existing = await conn.query(
-      'SELECT id FROM admin_users WHERE username = ?',
-      [username],
-    );
-
-    if (existing.isNotEmpty) {
-      return Response(409,
-        body: jsonEncode({"message": "Username already exists"}),
-        headers: {"Content-Type": "application/json"});
+    if (username == null || password == null || adminType == null) {
+      return Response(400,
+          body: jsonEncode({"message": "Missing credentials"}),
+          headers: {"Content-Type": "application/json"});
     }
 
-    final hash = BCrypt.hashpw(password, BCrypt.gensalt());
+    if (adminType != 'HR' && adminType != 'RECRUITING_MANAGER') {
+      return Response(400,
+          body: jsonEncode({"message": "Invalid admin type"}),
+          headers: {"Content-Type": "application/json"});
+    }
 
-    await conn.query(
-  '''
-  INSERT INTO admin_users (username, password, admin_type, created_at)
-  VALUES (?, ?, ?, NOW())
-  ''',
-  [username, hash, adminType],
-);
-    return Response.ok(
-      jsonEncode({"ok": true, "message": "Admin registered successfully"}),
-      headers: {"Content-Type": "application/json"},
-    );
-  });
+    return await withPoolConn((conn) async {
+      final existing = await conn.query(
+        'SELECT id FROM admin_users WHERE username = ?',
+        [username],
+      );
+
+      if (existing.isNotEmpty) {
+        return Response(409,
+            body: jsonEncode({"message": "Username already exists"}),
+            headers: {"Content-Type": "application/json"});
+      }
+
+      final hash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+      await conn.query(
+        '''
+        INSERT INTO admin_users (username, password, admin_type, created_at)
+        VALUES (?, ?, ?, NOW())
+        ''',
+        [username, hash, adminType],
+      );
+
+      return Response.ok(
+          jsonEncode({"ok": true, "message": "Admin registered successfully"}),
+          headers: {"Content-Type": "application/json"});
+    });
+  } catch (e, st) {
+    print('Error in admin/register: $e\n$st'); // Log server-side
+    return Response.internalServerError(
+        body: jsonEncode({"message": "Internal server error"}),
+        headers: {"Content-Type": "application/json"});
+  }
 }
+
 //================APPLY LEAVE (USER)============
 if (path == 'api/leave/apply' && method == 'POST') {
   final userId = await verifyToken(req);
