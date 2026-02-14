@@ -1,7 +1,6 @@
 // server.dart
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:mysql1/mysql1.dart';
@@ -34,29 +33,6 @@ Future<T> withPoolConn<T>(Future<T> Function(MySqlConnection conn) action) async
     }
   });
 }
-
-
-/// ---------------- MYSQL POOL (CRITICAL FIX) ----------------
-// final pool = Pool(5); // allow 5 concurrent connections
-
-// Future<T> withPoolConn<T>(Future<T> Function(MySqlConnection conn) action) async {
-//   return pool.withResource(() async {
-//     final conn = await MySqlConnection.connect(
-//       ConnectionSettings(
-//         host: 'mysql.railway.internal',
-//         port: 3306,
-//         user: 'root', 
-//         password: 'kdUeMrfecaBwmxWKRCDRDevZkocuigEw',
-//         db: 'railway',
-//       ),
-//     );
-//     try {
-//       return await action(conn);
-//     } finally {
-//       await conn.close();
-//     }
-//   });
-// }
 
 
 /// ---------------- CORS MIDDLEWARE ----------------
